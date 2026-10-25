@@ -22,7 +22,8 @@ permalink: metamod-fallguys/semi-clip
 - `player_mask` 按玩家索引 1..`gpGlobals->maxClients` 对应位 `(1 << (entindex - 1))`；`SetEntitySemiClipToPlayer`/`Unset...` 仅接受玩家索引范围（`fallguys/src/server_hook.cpp`）。
 - `SemiClip` 与 `PMSemiClip` 的差异：`PMSemiClip` 不影响 `ShouldCollide`（服务器碰撞），但会影响 PM 过滤与客户端 `solid`；`SemiClip` 影响全部路径。
 - `SetEntitySemiClip*` 会在实体尚未有 `CGameObject` 时创建对象；实体释放由 `RemoveGameObject` 处理，调用端无需手动创建。
-- `PM_StartMove` 使用 `std::remove_if` 过滤 `pmove->physents`，但未显式更新 `numphysent`（可作为行为注意点进行验证）。
+- `PM_StartMove` 用 `std::remove_if` 压缩 `pmove->physents` 并回写 `numphysent`（fallguys `6befe77`，2026-01-17 修复；此前未回写，`[new_end, end)` 尾部残留旧条目，被过滤实体可能仍参与 PM 碰撞，SemiClip 偶发失效）。过滤发生在 `PM_Move` 之前，`onground`/`touchindex` 等 physent 下标均在过滤后计算，因此保持一致；visents/moveents 不过滤。
+- `pmove` 声明为 `playermove_t*`，Sven 10152+ 实际是 `playermove_10152_t`（physents 上限 1024，visents 之后字段偏移不同）。`PM_StartMove` 按 `build_number() >= 10152` 选择布局调用模板 `PM_RemovePhysents`；`PM_ShouldCollide` 直接读的 `player_index` 由 static_assert 固定两种布局偏移相同。新增直接经 `pmove` 读取的字段时，须同样按 build 选择布局或加 static_assert。原无调用方且在 10152 布局下偏移错误的 `PM_FlyMove`/`PM_ClipVelocity`/`PM_AddToTouched` 已删除。
 
 ## AngelScript-level API（`CEntityFuncs`）
 
