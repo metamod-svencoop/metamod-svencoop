@@ -7,7 +7,7 @@ permalink: metamod-fallguys/project-structure
 # Project Structure
 
 The aggregate owns orchestration, packaging, documentation and the plugin list.
-`metamod/`, `asext/`, `ascurl/`, `asqcvar/`, `asusermsg/`, `fallguys/` are git submodules
+`metamod/`, `asext/`, `ascurl/`, `asqcvar/`, `asusermsg/`, `fallguys/`, `slowdl/`, `gsphysfix/` are git submodules
 of independent repositories in the metamod-svencoop organization.
 
 - Components: root CMakeLists.txt and cmake/, public include/, private src/.

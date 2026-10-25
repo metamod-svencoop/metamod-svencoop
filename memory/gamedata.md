@@ -95,3 +95,8 @@ tags:
 - 正确做法：保留原版本化标签规则，显式追加唯一无版本例外 `decay`；不放开其他未知无版本标签。现有 ASExt、FallGuys、SlowDL、ASExtHook、HalflifeCLI manifest 无需选择 Decay 或客户端鼠标符号。astemplate 与 asexthook 通过更新 Metamod 子模块复用修复，HalflifeCLI 修复自身脚本副本。
 - 验证方式：新增 5 项行为测试先复现拒绝，再验证稳定/内容寻址文件名、manifest gameVersions/symbolExemptions/conditionalGroups.when/exempt，以及未选择的 Decay 不阻断筛选。Metamod Python 19 项通过；Windows Release 原生构建、格式检查通过；CTest 9 项通过、BLOB 外部样本测试跳过。8 组消费者在线同步和 validate-only 全通过，共 32 份裁剪快照；固定 `PYTHONHASHSEED=0` 后与旧裁剪逻辑逐字节一致。
 - 适用范围：消费完整 GoldSrc_VibeSignatures index 的构建期同步器；此次不改变运行时 API 和游戏支持范围。已有 `prune_snapshot` 遍历 used_modules 集合，跨 Python 进程的二进制对象键顺序可能受随机 hash seed 影响，因此逐字节对比要固定 seed；不能据此声称任意环境下字节顺序一致。
+
+## GSPhysFix 消费者（2026-10-25）
+
+- 新增 `gsphysfix_windows` / `gsphysfix_linux` 两个 manifest：Linux 用 `conditionalGroups` 按 gameVersion 选择 `SV_CopyEdictToPhysent`（hl-8684）或 `SV_AddLinksToPM_` + `pmove` + `build_number`（hl-10210、svencoop-8948/10257），`alternativeGroups` 覆盖 Linux mangled 名。conditionalGroups/symbolExemptions 只按 gameVersion 生效，平台差异须拆分 manifest。
+- 运行时 gamedata 仍只支持 function/global；上游 `scalar`（如 `playermove_t_*_offset`）不可直接消费，需用 HLSDK 固定结构 + static_assert 对齐上游数值。详见 [[gsphysfix]]。

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.21)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-set(MMFG_COMPONENTS metamod asext ascurl asqcvar asusermsg fallguys slowdl)
+set(MMFG_COMPONENTS metamod asext ascurl asqcvar asusermsg fallguys slowdl gsphysfix)
 option(FORMAT_VALIDATION_ONLY "Configure formatting without compilers or native dependencies" OFF)
 if(FORMAT_VALIDATION_ONLY)
     project(MetamodFallguysFormat LANGUAGES NONE)
