@@ -95,6 +95,7 @@ tags:
 - 正确做法：保留原版本化标签规则，显式追加唯一无版本例外 `decay`；不放开其他未知无版本标签。现有 ASExt、FallGuys、SlowDL、ASExtHook、HalflifeCLI manifest 无需选择 Decay 或客户端鼠标符号。astemplate 与 asexthook 通过更新 Metamod 子模块复用修复，HalflifeCLI 修复自身脚本副本。
 - 验证方式：新增 5 项行为测试先复现拒绝，再验证稳定/内容寻址文件名、manifest gameVersions/symbolExemptions/conditionalGroups.when/exempt，以及未选择的 Decay 不阻断筛选。Metamod Python 19 项通过；Windows Release 原生构建、格式检查通过；CTest 9 项通过、BLOB 外部样本测试跳过。8 组消费者在线同步和 validate-only 全通过，共 32 份裁剪快照；固定 `PYTHONHASHSEED=0` 后与旧裁剪逻辑逐字节一致。
 - 适用范围：消费完整 GoldSrc_VibeSignatures index 的构建期同步器；此次不改变运行时 API 和游戏支持范围。已有 `prune_snapshot` 遍历 used_modules 集合，跨 Python 进程的二进制对象键顺序可能受随机 hash seed 影响，因此逐字节对比要固定 seed；不能据此声称任意环境下字节顺序一致。
+- 后续发现（2026-10-25）：组件独立构建按各自 `cmake/Revisions.cmake` 的 `MMFG_METAMOD_REVISION` 拉取 Metamod，不复用聚合仓库的子模块。聚合 #59 只更新了聚合 gitlink，fallguys（`a9ee78e`）、asext（`a9ee78e`）、slowdl（`f04e4db`）的独立 CI 仍以同一 Decay 错误失败（由 fallguys#4 暴露）；聚合 CI 不受影响。已统一锁定到 `1a62046`。ascurl/asqcvar/asusermsg 没有 manifest，只从 asext 取 `include/asext_api.h` 与 `cmake/SDK.cmake`，不跑同步，不受影响。修复 Metamod 同步器后，需检查所有带 `scripts/manifests` 的组件的锁定版本。
 
 ## GSPhysFix 消费者（2026-10-25）
 
