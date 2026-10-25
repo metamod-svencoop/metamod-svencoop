@@ -45,6 +45,7 @@ jobs:
         run: |
           ctest --test-dir build/x86/${{ matrix.config }}/metamod/tests --output-on-failure
           ctest --test-dir build/x86/${{ matrix.config }}/slowdl --output-on-failure
+          ctest --test-dir build/x86/${{ matrix.config }}/gsphysfix --output-on-failure
 
       - name: Test release scripts
         working-directory: ${{env.GITHUB_WORKSPACE}}

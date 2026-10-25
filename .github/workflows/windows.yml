@@ -48,7 +48,8 @@ jobs:
             'ascurl.pdb',
             'asqcvar.pdb',
             'asusermsg.pdb',
-            'slowdl.pdb'
+            'slowdl.pdb',
+            'gsphysfix.pdb'
           )
 
           $missingPdbs = @()
@@ -66,6 +67,7 @@ jobs:
         run: |
           ctest --test-dir build/x86/${{ matrix.config }}/metamod/tests -C ${{ matrix.config }} --output-on-failure
           ctest --test-dir build/x86/${{ matrix.config }}/slowdl -C ${{ matrix.config }} --output-on-failure
+          ctest --test-dir build/x86/${{ matrix.config }}/gsphysfix -C ${{ matrix.config }} --output-on-failure
 
       - name: Test release scripts
         working-directory: ${{env.GITHUB_WORKSPACE}}

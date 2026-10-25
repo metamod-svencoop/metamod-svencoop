@@ -25,3 +25,6 @@
 [submodule "slowdl"]
 	path = slowdl
 	url = https://github.com/metamod-svencoop/slowdl.git
+[submodule "gsphysfix"]
+	path = gsphysfix
+	url = https://github.com/metamod-svencoop/gsphysfix.git

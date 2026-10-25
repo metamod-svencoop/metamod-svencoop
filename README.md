@@ -143,6 +143,16 @@ Monitors UDP download requests, including FastDL fallback. No ASExt dependency.
 
 [Documentation and supported builds](https://github.com/metamod-svencoop/slowdl)
 
+### gsphysfix.dll (gsphysfix.so)
+
+Fixes server-side player movement against `SOLID_SLIDEBOX` studio models flagged for hitbox traces (`$flags 512`). The engine gave such physents a bounding box while client prediction used hitboxes, so players standing on or touching them were grounded on the client but airborne on the server. No ASExt dependency.
+
+* `sv_gsphysfix` (default `1`) applies the hitbox rule to server physents.
+* Hooks `SV_CopyEdictToPhysent`, or `SV_AddLinksToPM_` on Linux builds that inline the conversion; only `physent_t::studiomodel` changes.
+* Includes gamedata for all 15 published engine/platform inputs (GoldSrc_VibeSignatures v20261025a or later).
+
+[Documentation and supported builds](https://github.com/metamod-svencoop/gsphysfix)
+
 # Installation
 
 tutorial video: https://www.youtube.com/watch?v=r2NRp5TZmUM
@@ -209,7 +219,7 @@ The edited `liblist.gam` should be something like this ![](/img/1.png)
 
 # Build
 
-The seven components are independent repositories under the
+The eight components are independent repositories under the
 [metamod-svencoop organization](https://github.com/metamod-svencoop), tracked here as
 submodules. Public headers are in `include/`, implementation in `src/`. Metamod owns
 HLSDK under `metamod/include/HLSDK/` and its private Capstone/procmap submodules.
@@ -251,6 +261,7 @@ cover, asext and fallguys log `Failed to resolve ...` and refuse to load.
 
 SlowDL uses the same resolver with a broader engine manifest. Install both its
 `slowdl` and `slowdl_windows` gamedata directories; see its supported-build matrix.
+GSPhysFix likewise needs both `gsphysfix_windows` and `gsphysfix_linux`.
 For BLOB engines, Metamod verifies the loaded image against the original engine
 file before using that file's CRC and the registered section ranges.
 
@@ -270,7 +281,7 @@ AngelScript ABI. Invalid explicit paths fail; dependency source trees are read-o
 
 The aggregate injects its initialized local dependency trees and reuses vendor targets.
 `MMFG_BUILD_METAMOD`, `MMFG_BUILD_ASEXT`, `MMFG_BUILD_ASCURL`, `MMFG_BUILD_ASQCVAR`,
-`MMFG_BUILD_ASUSERMSG`, `MMFG_BUILD_FALLGUYS`, and `MMFG_BUILD_SLOWDL` may disable native components.
+`MMFG_BUILD_ASUSERMSG`, `MMFG_BUILD_FALLGUYS`, `MMFG_BUILD_SLOWDL`, and `MMFG_BUILD_GSPHYSFIX` may disable native components.
 SDK consumption does not compile dependency plugins; their runtime loading stays unchanged.
 
 ## Formatting
@@ -282,7 +293,7 @@ cmake --build build-cmake/format --target format-check
 cmake --build build-cmake/format --target format
 ```
 
-Formatting works without a native compiler. The aggregate targets cover all seven
+Formatting works without a native compiler. The aggregate targets cover all eight
 components, including disabled native components; `<component>-format-check` and
 `<component>-format` select one. Normal native builds do not install or execute formatting.
 The shared FormatValidation commit is fixed at `13c9fabe058e1f887ad1b03bb6884de911192c6a`;
