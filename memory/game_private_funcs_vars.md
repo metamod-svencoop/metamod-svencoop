@@ -54,20 +54,20 @@ permalink: metamod-fallguys/game-private-funcs-vars
 - `dll` 是 token（`engine`/`server`），宏内部拼 `engineBase/serverBase`，因此 `meta_api.cpp` 仍须按约定命名局部变量 `engineBase`、`serverBase`（不再需要 `*CodeBase/*CodeSize`）。
 - `FILL_FROM_GAMEDATA(dll, name)`：kind=FUNCTION，写入 `g_pfn_name` 并同步 `g_call_original_name`。
 - `VAR_FROM_GAMEDATA(dll, name)`：kind=GLOBAL，`name = (decltype(name))addr`。GLOBAL 解析结果是**变量本身的地址**（`gv_rva`），不是读出来的指针：`g_pServerManager` 是 `CASServerManager**`（= `&pInstance`）、`sv_models` 是数组地址、`host_frametime` 是 `double*`。
-- 旧的 `FILL_FROM_SIGNATURE* / VAR_FROM_SIGNATURE* / FILL_FROM_SYMBOL` 宏仍保留在公共头里供仓库外插件使用，本仓库插件不再使用。
+- 旧的 `FILL_FROM_SIGNATURE* / VAR_FROM_SIGNATURE* / FILL_FROM_SYMBOL` 宏已随接口 5:18 清理移除，所有插件统一使用 gamedata 宏。
 
 4) fallguys 插件的落地方式
 - server：`PM_PlaySoundFX_SERVER`、`CPlayerMove_PlayStepSound`、`RegisterSCScriptColor24`。
 - engine 函数：`build_number`、`SV_Physics`、`SV_PushEntity`、`SV_PushMove`、`SV_PushRotate`、`SV_WriteMovevarsToClient`、`SV_SingleClipMoveToEntity(_10152)`。
 - engine 变量：`sv_models`、`host_frametime`、`pmovevars`、`sv_areanodes`、`pg_groupop`、`pg_groupmask`。
-- `Meta_Query` 要求 metamod 接口 ≥ 5:17（需要 `pfnResolveGameSymbol`）。
+- `Meta_Query` 要求 metamod 接口 ≥ 5:18（需要 5:18 `mutil_funcs_t` 布局与 `pfnResolveGameSymbol`）。
 
 5) asext 插件的落地方式
 - 39 个 server 函数（`CASHook_*`、`CString_*`、`asGetActiveContext`、`CASDocumentation_*`、`CASBaseManager_GetTypeInfoByName`、`CScriptDictionary_*` 等）+ `VAR_FROM_GAMEDATA(server, g_pServerManager)`。
-- `Meta_Query` 用 strcmp 严格比较接口版本，asext 随 metamod 一起以 5:17 构建。
+- `Meta_Query` 用 strcmp 严格比较接口版本，asext 随 metamod 一起以 5:18 构建。
 
 ## 依赖
-- metamod mutil：`pfnResolveGameSymbol`、`pfnGetGameSymbolStatusString`（接口 5:17 末尾追加）。
+- metamod mutil：`pfnResolveGameSymbol`、`pfnGetGameSymbolStatusString`（接口 5:18）。
 - metamod 在 `meta_load_gamedll()` 之后、`Plugins->load()` 之前加载 `<gamedir>/addons/metamod/gamedata/**/index.json`。
 
 ## 注意事项
