@@ -28,3 +28,6 @@
 [submodule "gsphysfix"]
 	path = gsphysfix
 	url = https://github.com/metamod-svencoop/gsphysfix.git
+[submodule "thirdparty/GoldSrcExt"]
+	path = thirdparty/GoldSrcExt
+	url = https://github.com/HLND2T/GoldSrcExt.git
