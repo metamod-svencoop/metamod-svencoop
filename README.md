@@ -254,7 +254,7 @@ symbols come from [GoldSrc_VibeSignatures](https://github.com/hlnd2t/GoldSrc_Vib
 gamedata, which currently covers Sven Co-op `svencoop-8948` and `svencoop-10257` on
 Windows and Linux. At build time each plugin downloads the published snapshots, keeps the
 symbols listed in its `scripts/manifests/<plugin>.json` and installs them to
-`addons/metamod/gamedata/<plugin>/`. At run time metamod (interface 5:17) loads every
+`addons/metamod/gamedata/<plugin>/`. At run time metamod (interface 5:18) loads every
 `index.json` under `addons/metamod/gamedata/` and resolves a symbol by the CRC-64 of the
 loaded `hw`/`server` module plus its `symbolName`. On a game build that the gamedata does not
 cover, asext and fallguys log `Failed to resolve ...` and refuse to load.

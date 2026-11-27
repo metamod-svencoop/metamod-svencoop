@@ -18,8 +18,8 @@ tags:
 ## 涉及文件
 - `metamod/src/gamedata.h`、`metamod/src/gamedata.cpp`：运行时目录（namespace `GameData`）
 - `metamod/include/gamesymbol.h`：`meta_gamesymbol_kind_t`、`meta_gamesymbol_status_t`（取值与 MetaHookSv 一致）
-- `metamod/include/mutil.h`、`metamod/src/mutil.cpp`：`pfnResolveGameSymbol`、`pfnGetGameSymbolStatusString`（接口 5:17，追加在 `pfnGetCodeSize` 之后）
-- `metamod/include/meta_api.h`：`META_INTERFACE_VERSION "5:17"`
+- `metamod/include/mutil.h`、`metamod/src/mutil.cpp`：`pfnResolveGameSymbol`、`pfnGetGameSymbolStatusString`（接口 5:18，保留 16 个自定义扩展槽位，移除了废弃特征码扫描/反汇编/Studio 槽位）
+- `metamod/include/meta_api.h`：`META_INTERFACE_VERSION "5:18"`（`mplugin.cpp` 保持兼容 ≤5:13 标准插件，拒绝旧扩展布局 5:14..5:17）
 - `metamod/src/metamod.cpp`：`meta_init_gamedata()`，在 `meta_load_gamedll()` 之后、`Plugins->load()` 之前
 - `metamod/include/signatures_template.h`：`RESOLVE_FROM_GAMEDATA` / `FILL_FROM_GAMEDATA` / `VAR_FROM_GAMEDATA`
 - `metamod/scripts/sync-gamedata.py`：构建期同步/裁剪/校验脚本（MetaHookSv 同名脚本改造）
