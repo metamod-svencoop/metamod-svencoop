@@ -75,6 +75,7 @@ class PublishingTests(unittest.TestCase):
     def test_complete_release_is_published_last(self):
         self.publish()
         self.assertFalse(self.api.release["draft"])
+        self.assertEqual(6, len(release.EXPECTED_ASSETS))
         self.assertEqual(len(release.EXPECTED_ASSETS), len(self.api.assets))
         self.assertEqual(("PATCH", "releases/42", {"draft": False}), self.api.calls[-1])
 

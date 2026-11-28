@@ -25,9 +25,12 @@ PAGE_SIZE = 100
 UPLOAD_CHUNK_BYTES = 1024 * 1024
 CONTENT_TYPES = {".7z": "application/x-7z-compressed", ".zip": "application/zip"}
 EXPECTED_ASSETS = (
-    "release-windows/metamod-fallguys-windows-x86.zip",
-    "release-windows/metamod-fallguys-windows-x86-with-pdb.zip",
-    "release-ubuntu/metamod-fallguys-ubuntu-i386.zip",
+    "release-windows-x86/metamod-fallguys-windows-x86.zip",
+    "release-windows-x86/metamod-fallguys-windows-x86-with-pdb.zip",
+    "release-windows-x64/metamod-fallguys-windows-x64.zip",
+    "release-windows-x64/metamod-fallguys-windows-x64-with-pdb.zip",
+    "release-ubuntu-i386/metamod-fallguys-ubuntu-i386.zip",
+    "release-ubuntu-x86_64/metamod-fallguys-ubuntu-x86_64.zip",
 )
 INSTRUCTIONS = """Write release notes for the current metamod-fallguys tag using the supplied evidence and read-only Git history queries.
 Return Markdown with exactly two language sections: ## English and ## 中文.
@@ -408,7 +411,7 @@ def validate_assets(root):
         if path.is_file():
             actual.add(path.relative_to(root).as_posix())
     if actual != expected:
-        raise ReleaseError("Expected exactly the three release archives in their designated artifacts")
+        raise ReleaseError("Expected exactly the configured release archives in their designated artifacts")
     archives = [root / relative for relative in EXPECTED_ASSETS]
     if any(archive.stat().st_size == 0 for archive in archives):
         raise ReleaseError("Release archives must not be empty")

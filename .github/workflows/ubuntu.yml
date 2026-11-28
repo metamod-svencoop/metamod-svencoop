@@ -16,8 +16,21 @@ jobs:
 
     runs-on: ubuntu-24.04
     strategy:
+      fail-fast: false
       matrix:
-        config: [Debug, Release]
+        include:
+          - arch: x86
+            package_arch: i386
+            config: Debug
+          - arch: x86
+            package_arch: i386
+            config: Release
+          - arch: x64
+            package_arch: x86_64
+            config: Debug
+          - arch: x64
+            package_arch: x86_64
+            config: Release
 
     steps:
       - uses: actions/checkout@v4
@@ -29,23 +42,45 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Install build environment
+      - name: Install build environment (x86)
+        if: matrix.arch == 'x86'
         run: |
           sudo apt-get update
           sudo apt-get install -y make build-essential gcc gcc-multilib g++-multilib
 
-      - name: Build all
+      - name: Install build environment (x64)
+        if: matrix.arch == 'x64'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y make build-essential gcc g++
+
+      - name: Configure x86
+        if: matrix.arch == 'x86'
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: cmake -S . -B build/x86/${{ matrix.config }} -DCMAKE_BUILD_TYPE=${{ matrix.config }} -DMMFG_METAMOD_BUILD_TESTS=ON
+
+      - name: Configure x64
+        if: matrix.arch == 'x64'
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: cmake -S . -B build/x64/${{ matrix.config }} -DCMAKE_BUILD_TYPE=${{ matrix.config }} -DMETAMOD_64BIT=ON -DMMFG_METAMOD_BUILD_TESTS=ON -DMMFG_SYNC_GAMEDATA=OFF
+
+      - name: Build and install
         working-directory: ${{env.GITHUB_WORKSPACE}}
         run: |
-          cmake -S . -B build/x86/${{ matrix.config }} -DCMAKE_BUILD_TYPE=${{ matrix.config }} -DMMFG_METAMOD_BUILD_TESTS=ON
-          cmake --build build/x86/${{ matrix.config }} --parallel 6
-          cmake --install build/x86/${{ matrix.config }}
+          cmake --build build/${{ matrix.arch }}/${{ matrix.config }} --parallel 6
+          cmake --install build/${{ matrix.arch }}/${{ matrix.config }}
 
       - name: Test components
         run: |
-          ctest --test-dir build/x86/${{ matrix.config }}/metamod/tests --output-on-failure
-          ctest --test-dir build/x86/${{ matrix.config }}/slowdl --output-on-failure
-          ctest --test-dir build/x86/${{ matrix.config }}/gsphysfix --output-on-failure
+          ctest --test-dir build/${{ matrix.arch }}/${{ matrix.config }}/metamod/tests --output-on-failure
+          ctest --test-dir build/${{ matrix.arch }}/${{ matrix.config }}/asext --output-on-failure
+          ctest --test-dir build/${{ matrix.arch }}/${{ matrix.config }}/assqlite --output-on-failure
+          ctest --test-dir build/${{ matrix.arch }}/${{ matrix.config }}/fallguys --output-on-failure
+          ctest --test-dir build/${{ matrix.arch }}/${{ matrix.config }}/slowdl --output-on-failure
+
+      - name: Test x86-only components
+        if: matrix.arch == 'x86'
+        run: ctest --test-dir build/x86/${{ matrix.config }}/gsphysfix --output-on-failure
 
       - name: Test release scripts
         working-directory: ${{env.GITHUB_WORKSPACE}}
@@ -54,14 +89,14 @@ jobs:
 
       - name: Stage release payload
         if: matrix.config == 'Release'
-        run: cmake -E copy_directory install/x86/Release/addons "${{ runner.temp }}/mmfg-release/build/addons"
+        run: cmake -E copy_directory install/${{ matrix.arch }}/Release/addons "${{ runner.temp }}/mmfg-release/build/addons"
 
       - name: Archive the install payload
         if: matrix.config == 'Release'
         uses: thedoctor0/zip-release@main
         with:
           type: 'zip'
-          filename: '${{ github.workspace }}/metamod-fallguys-ubuntu-i386.zip'
+          filename: '${{ github.workspace }}/metamod-fallguys-ubuntu-${{ matrix.package_arch }}.zip'
           directory: '${{ runner.temp }}/mmfg-release'
           path: 'build'
 
@@ -69,9 +104,9 @@ jobs:
         if: matrix.config == 'Release'
         uses: actions/upload-artifact@v4
         with:
-          name: release-ubuntu
+          name: release-ubuntu-${{ matrix.package_arch }}
           path: |
-            metamod-fallguys-ubuntu-i386.zip
+            metamod-fallguys-ubuntu-${{ matrix.package_arch }}.zip
           if-no-files-found: error
           retention-days: 14
           overwrite: true
