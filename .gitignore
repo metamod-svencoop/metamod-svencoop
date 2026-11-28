@@ -8,6 +8,7 @@ settings.local.json
 /install
 /Debug
 /Release
+/build
 /build-cmake
 /build/x86/
 /build/addons/metamod/dlls
