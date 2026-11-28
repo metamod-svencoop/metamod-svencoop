@@ -25,8 +25,9 @@ tags:
     先 `release.py context` 生成证据，装 claude/codex CLI，再 `release.py notes`，上传 `release-notes`。
   - `publish`：`permissions: contents: write`，下载三个 artifact 到 `release-assets/`，再
     `release.py publish --assets release-assets --notes release-notes/release-notes.md`。
-- 三个资产（`EXPECTED_ASSETS`）：`release-windows/metamod-fallguys-windows-x86.zip`、
-  `-windows-x86-with-pdb.zip`、`release-ubuntu/metamod-fallguys-ubuntu-i386.zip`。
+- 六个资产（`EXPECTED_ASSETS`）：`release-windows-{x86,x64}/metamod-svencoop-windows-<arch>.7z`、
+  `-with-pdb.7z`、`release-ubuntu-{i386,x86_64}/metamod-svencoop-ubuntu-<arch>.7z`；workflow 用 runner 自带的
+  `7z a -t7z` 打包 `build/addons/` 布局（Windows 无 PDB 包用 `-xr!*.pdb`），已弃用 `thedoctor0/zip-release`。
 - `windows.yml`/`ubuntu.yml` 已去掉 `push: tags` 与 `softprops/action-gh-release`，避免 tag
   双触发重复发布；两者都跑 `python -B -m unittest discover -s scripts/tests -p 'test_release*.py'`。
 - `release_git.py` 原样移植，是只读 Git stdio MCP（单工具 `git_history`：log/show/diff/ls-tree），
@@ -39,7 +40,7 @@ tags:
 ## 正确做法
 - 改仓库身份相关处：`INSTRUCTIONS` 文案、`DIFF_PATHS` 排除集（mmfg 特有 `build-cmake/`、`install/`、
   `.vs/`、`Debug/`、`Release/`、`intermediate/`）、`EXPECTED_ASSETS`、upload `Content-Type`
-  （按后缀，`.zip`→`application/zip`）、release `name`（`metamod-fallguys-<tag>`）。
+  （按后缀，`.7z`→`application/x-7z-compressed`）、release `name`（`metamod-svencoop-<tag>`）。
 - 不要动 `release.py` 的安全不变量：draft-first、资产精确集合校验、tag 未移动校验、
   双语 notes 校验、重试后 fail-closed、凭证回显拒绝、codex CLI 事件白名单。
 

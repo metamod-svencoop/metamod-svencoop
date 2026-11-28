@@ -93,12 +93,8 @@ jobs:
 
       - name: Archive the install payload
         if: matrix.config == 'Release'
-        uses: thedoctor0/zip-release@main
-        with:
-          type: 'zip'
-          filename: '${{ github.workspace }}/metamod-fallguys-ubuntu-${{ matrix.package_arch }}.zip'
-          directory: '${{ runner.temp }}/mmfg-release'
-          path: 'build'
+        working-directory: ${{ runner.temp }}/mmfg-release
+        run: 7z a -t7z -bd -y "${{ github.workspace }}/metamod-svencoop-ubuntu-${{ matrix.package_arch }}.7z" build
 
       - name: Upload release artifacts
         if: matrix.config == 'Release'
@@ -106,7 +102,7 @@ jobs:
         with:
           name: release-ubuntu-${{ matrix.package_arch }}
           path: |
-            metamod-fallguys-ubuntu-${{ matrix.package_arch }}.zip
+            metamod-svencoop-ubuntu-${{ matrix.package_arch }}.7z
           if-no-files-found: error
           retention-days: 14
           overwrite: true

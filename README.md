@@ -180,7 +180,7 @@ Fixes server-side player movement against `SOLID_SLIDEBOX` studio models flagged
 
 tutorial video: https://www.youtube.com/watch?v=r2NRp5TZmUM
 
-1. Download latest build (-windows or -linux depending on your OS) from [GitHub Release](https://github.com/metamod-svencoop/metamod-svencoop/releases), then unzip it.
+1. Download latest build (-windows or -linux depending on your OS) from [GitHub Release](https://github.com/metamod-svencoop/metamod-svencoop/releases), then extract it with [7-Zip](https://www.7-zip.org/) (or `7z x` on Linux).
 
 2. Copy everything from the previously unarchived `build` directory into `\steamapps\common\Sven Co-op\svencoop` 
 

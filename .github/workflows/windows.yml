@@ -103,23 +103,13 @@ jobs:
 
       - name: Archive the install payload
         if: matrix.config == 'Release'
-        uses: thedoctor0/zip-release@main
-        with:
-          type: 'zip'
-          filename: '${{ github.workspace }}/metamod-fallguys-windows-${{ matrix.arch }}.zip'
-          directory: '${{ runner.temp }}/mmfg-release'
-          path: 'build'
-          exclusions: '*.pdb'
-          recursive_exclusions: '*.pdb'
+        working-directory: ${{ runner.temp }}/mmfg-release
+        run: 7z a -t7z -bd -y "${{ github.workspace }}/metamod-svencoop-windows-${{ matrix.arch }}.7z" build '-xr!*.pdb'
 
       - name: Archive the install payload with PDBs
         if: matrix.config == 'Release'
-        uses: thedoctor0/zip-release@main
-        with:
-          type: 'zip'
-          filename: '${{ github.workspace }}/metamod-fallguys-windows-${{ matrix.arch }}-with-pdb.zip'
-          directory: '${{ runner.temp }}/mmfg-release'
-          path: 'build'
+        working-directory: ${{ runner.temp }}/mmfg-release
+        run: 7z a -t7z -bd -y "${{ github.workspace }}/metamod-svencoop-windows-${{ matrix.arch }}-with-pdb.7z" build
 
       - name: Upload release artifacts
         if: matrix.config == 'Release'
@@ -127,8 +117,8 @@ jobs:
         with:
           name: release-windows-${{ matrix.arch }}
           path: |
-            metamod-fallguys-windows-${{ matrix.arch }}.zip
-            metamod-fallguys-windows-${{ matrix.arch }}-with-pdb.zip
+            metamod-svencoop-windows-${{ matrix.arch }}.7z
+            metamod-svencoop-windows-${{ matrix.arch }}-with-pdb.7z
           if-no-files-found: error
           retention-days: 14
           overwrite: true

@@ -25,14 +25,14 @@ PAGE_SIZE = 100
 UPLOAD_CHUNK_BYTES = 1024 * 1024
 CONTENT_TYPES = {".7z": "application/x-7z-compressed", ".zip": "application/zip"}
 EXPECTED_ASSETS = (
-    "release-windows-x86/metamod-fallguys-windows-x86.zip",
-    "release-windows-x86/metamod-fallguys-windows-x86-with-pdb.zip",
-    "release-windows-x64/metamod-fallguys-windows-x64.zip",
-    "release-windows-x64/metamod-fallguys-windows-x64-with-pdb.zip",
-    "release-ubuntu-i386/metamod-fallguys-ubuntu-i386.zip",
-    "release-ubuntu-x86_64/metamod-fallguys-ubuntu-x86_64.zip",
+    "release-windows-x86/metamod-svencoop-windows-x86.7z",
+    "release-windows-x86/metamod-svencoop-windows-x86-with-pdb.7z",
+    "release-windows-x64/metamod-svencoop-windows-x64.7z",
+    "release-windows-x64/metamod-svencoop-windows-x64-with-pdb.7z",
+    "release-ubuntu-i386/metamod-svencoop-ubuntu-i386.7z",
+    "release-ubuntu-x86_64/metamod-svencoop-ubuntu-x86_64.7z",
 )
-INSTRUCTIONS = """Write release notes for the current metamod-fallguys tag using the supplied evidence and read-only Git history queries.
+INSTRUCTIONS = """Write release notes for the current metamod-svencoop tag using the supplied evidence and read-only Git history queries.
 Return Markdown with exactly two language sections: ## English and ## 中文.
 Use concise user-facing bullets with module labels such as [metamod], [asext] or [fallguys].
 Translate the same changes in both sections. Omit routine internal churn unless important.
@@ -77,7 +77,7 @@ class GitHub:
             "Authorization": f"Bearer {token}",
             "Accept": "application/vnd.github+json",
             "X-GitHub-Api-Version": "2022-11-28",
-            "User-Agent": "metamod-fallguys-release",
+            "User-Agent": "metamod-svencoop-release",
         }
 
     def request(self, method, path, data=None, missing_ok=False):
@@ -432,7 +432,7 @@ def publish_release(api, tag, head, assets_root, notes):
     current = find_release(api, tag)
     if current and not current["draft"]:
         raise ReleaseError("This tag already has a public release; refusing to modify it")
-    details = {"tag_name": tag, "target_commitish": head, "name": f"metamod-fallguys-{tag}",
+    details = {"tag_name": tag, "target_commitish": head, "name": f"metamod-svencoop-{tag}",
                "body": notes, "draft": True, "prerelease": False}
     if current is None:
         current = api.request("POST", "releases", details)
@@ -459,7 +459,7 @@ def publish_release(api, tag, head, assets_root, notes):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Aggregate metamod-fallguys tag releases")
+    parser = argparse.ArgumentParser(description="Aggregate metamod-svencoop tag releases")
     commands = parser.add_subparsers(dest="command", required=True)
     context_parser = commands.add_parser("context")
     context_parser.add_argument("--output", type=Path, required=True)
