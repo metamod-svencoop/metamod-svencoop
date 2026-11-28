@@ -16,7 +16,9 @@ jobs:
 
     runs-on: windows-2022
     strategy:
+      fail-fast: false
       matrix:
+        arch: [x86, x64]
         config: [Debug, Release]
 
     steps:
@@ -29,18 +31,28 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Build all
+      - name: Configure x86
+        if: matrix.arch == 'x86'
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: cmake -S . -B build/x86/${{ matrix.config }} -A Win32 -DMMFG_METAMOD_BUILD_TESTS=ON
+
+      - name: Configure x64
+        if: matrix.arch == 'x64'
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: cmake -S . -B build/x64/${{ matrix.config }} -A x64 -DMMFG_METAMOD_BUILD_TESTS=ON -DMMFG_SYNC_GAMEDATA=OFF
+
+      - name: Build and install
         working-directory: ${{env.GITHUB_WORKSPACE}}
         run: |
-          cmake -S . -B build/x86/${{ matrix.config }} -A Win32 -DMMFG_METAMOD_BUILD_TESTS=ON
-          cmake --build build/x86/${{ matrix.config }} --config ${{ matrix.config }} --parallel 6
-          cmake --install build/x86/${{ matrix.config }} --config ${{ matrix.config }}
+          cmake --build build/${{ matrix.arch }}/${{ matrix.config }} --config ${{ matrix.config }} --parallel 6
+          cmake --install build/${{ matrix.arch }}/${{ matrix.config }} --config ${{ matrix.config }}
 
       - name: Verify component PDBs
         working-directory: ${{env.GITHUB_WORKSPACE}}
         shell: pwsh
         run: |
-          $pdbDirectory = Join-Path $env:GITHUB_WORKSPACE 'install\x86\${{ matrix.config }}\addons\metamod\dlls'
+          $dllSubdir = if ('${{ matrix.arch }}' -eq 'x64') { 'win64' } else { 'win32' }
+          $pdbDirectory = Join-Path $env:GITHUB_WORKSPACE "install\${{ matrix.arch }}\${{ matrix.config }}\addons\metamod\dlls\$dllSubdir"
           $expectedPdbs = @(
             'metamod.pdb',
             'asext.pdb',
@@ -49,9 +61,11 @@ jobs:
             'asqcvar.pdb',
             'assqlite.pdb',
             'asusermsg.pdb',
-            'slowdl.pdb',
-            'gsphysfix.pdb'
+            'slowdl.pdb'
           )
+          if ('${{ matrix.arch }}' -eq 'x86') {
+            $expectedPdbs += 'gsphysfix.pdb'
+          }
 
           $missingPdbs = @()
           foreach ($pdb in $expectedPdbs) {
@@ -66,9 +80,15 @@ jobs:
 
       - name: Test components
         run: |
-          ctest --test-dir build/x86/${{ matrix.config }}/metamod/tests -C ${{ matrix.config }} --output-on-failure
-          ctest --test-dir build/x86/${{ matrix.config }}/slowdl -C ${{ matrix.config }} --output-on-failure
-          ctest --test-dir build/x86/${{ matrix.config }}/gsphysfix -C ${{ matrix.config }} --output-on-failure
+          ctest --test-dir build/${{ matrix.arch }}/${{ matrix.config }}/metamod/tests -C ${{ matrix.config }} --output-on-failure
+          ctest --test-dir build/${{ matrix.arch }}/${{ matrix.config }}/asext -C ${{ matrix.config }} --output-on-failure
+          ctest --test-dir build/${{ matrix.arch }}/${{ matrix.config }}/assqlite -C ${{ matrix.config }} --output-on-failure
+          ctest --test-dir build/${{ matrix.arch }}/${{ matrix.config }}/fallguys -C ${{ matrix.config }} --output-on-failure
+          ctest --test-dir build/${{ matrix.arch }}/${{ matrix.config }}/slowdl -C ${{ matrix.config }} --output-on-failure
+
+      - name: Test x86-only components
+        if: matrix.arch == 'x86'
+        run: ctest --test-dir build/x86/${{ matrix.config }}/gsphysfix -C ${{ matrix.config }} --output-on-failure
 
       - name: Test release scripts
         working-directory: ${{env.GITHUB_WORKSPACE}}
@@ -77,14 +97,14 @@ jobs:
 
       - name: Stage release payload
         if: matrix.config == 'Release'
-        run: cmake -E copy_directory install/x86/Release/addons "${{ runner.temp }}/mmfg-release/build/addons"
+        run: cmake -E copy_directory install/${{ matrix.arch }}/Release/addons "${{ runner.temp }}/mmfg-release/build/addons"
 
       - name: Archive the install payload
         if: matrix.config == 'Release'
         uses: thedoctor0/zip-release@main
         with:
           type: 'zip'
-          filename: '${{ github.workspace }}/metamod-fallguys-windows-x86.zip'
+          filename: '${{ github.workspace }}/metamod-fallguys-windows-${{ matrix.arch }}.zip'
           directory: '${{ runner.temp }}/mmfg-release'
           path: 'build'
           exclusions: '*.pdb'
@@ -95,7 +115,7 @@ jobs:
         uses: thedoctor0/zip-release@main
         with:
           type: 'zip'
-          filename: '${{ github.workspace }}/metamod-fallguys-windows-x86-with-pdb.zip'
+          filename: '${{ github.workspace }}/metamod-fallguys-windows-${{ matrix.arch }}-with-pdb.zip'
           directory: '${{ runner.temp }}/mmfg-release'
           path: 'build'
 
@@ -103,10 +123,10 @@ jobs:
         if: matrix.config == 'Release'
         uses: actions/upload-artifact@v4
         with:
-          name: release-windows
+          name: release-windows-${{ matrix.arch }}
           path: |
-            metamod-fallguys-windows-x86.zip
-            metamod-fallguys-windows-x86-with-pdb.zip
+            metamod-fallguys-windows-${{ matrix.arch }}.zip
+            metamod-fallguys-windows-${{ matrix.arch }}-with-pdb.zip
           if-no-files-found: error
           retention-days: 14
           overwrite: true

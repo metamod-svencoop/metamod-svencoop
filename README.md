@@ -26,8 +26,9 @@ This metamod is based on [Bots-United's metamod-p](https://github.com/Bots-Unite
 
 # Plugins
 
-All plugins below are loaded by this metamod. They are installed into
-`Sven Co-op/svencoop/addons/metamod/dlls/` and enabled in `plugins.ini`.
+All plugins below are loaded by this metamod. They are installed into per-architecture
+subdirectories under `Sven Co-op/svencoop/addons/metamod/dlls/` (`win32`, `win64`,
+`linux`, `linux64`) and enabled in `plugins.ini`.
 
 ### fallguys.dll (fallguys.so)
 
@@ -75,7 +76,7 @@ Features :
 
 ```cpp
 IMPORT_ASEXT_API_DEFINE();
-LOAD_PLUGIN(PLID, "addons/metamod/dlls/asext.dll", PLUG_LOADTIME::PT_ANYTIME, &asextHandle);
+LOAD_PLUGIN(PLID, ASEXT_PLUGIN_PATH, PLUG_LOADTIME::PT_ANYTIME, &asextHandle);
 IMPORT_ASEXT_API(asext);
 ```
 
@@ -187,15 +188,21 @@ Sven Co-op/ (or Sven Co-op Dedicated Server/)
 |   `-- addons/
 |       `-- metamod/
 |           |-- dlls/
-|           |   |-- asqcvar.dll (asqcvar.so)
-|           |   |-- ascurl.dll (ascurl.so)
-|           |   |-- assqlite.dll (assqlite.so)
-|           |   |-- asusermsg.dll (asusermsg.so)
-|           |   |-- asext.dll (asext.so)
-|           |   `-- fallguys.dll (fallguys.so)
+|           |   |-- win32/ (or win64/, linux/, linux64/)
+|           |   |   |-- metamod.dll (metamod.so)
+|           |   |   |-- asext.dll (asext.so)
+|           |   |   |-- asqcvar.dll (asqcvar.so)
+|           |   |   |-- ascurl.dll (ascurl.so)
+|           |   |   |-- assqlite.dll (assqlite.so)
+|           |   |   |-- asusermsg.dll (asusermsg.so)
+|           |   |   |-- fallguys.dll (fallguys.so)
+|           |   |   |-- slowdl.dll (slowdl.so)
+|           |   |   `-- gsphysfix.dll (gsphysfix.so, 32-bit only)
 |           |-- gamedata/
 |           |   |-- asext/
-|           |   `-- fallguys/
+|           |   |-- fallguys/
+|           |   |-- slowdl/
+|           |   `-- gsphysfix_*/ (32-bit only)
 |           `-- plugins.ini
 |-- svencoop_addons/
 |-- svencoop_downloads/
@@ -206,7 +213,7 @@ Sven Co-op/ (or Sven Co-op Dedicated Server/)
 
 4. You should either 
 
-* Add `-dll addons/metamod/dlls/metamod.dll` (Windows) or `-dll addons/metamod/dlls/metamod.so` (linux) to launch parameter.
+* Add `-dll addons/metamod/dlls/win32/metamod.dll` (Windows x86), `-dll addons/metamod/dlls/win64/metamod.dll` (Windows x64), `-dll addons/metamod/dlls/linux/metamod.so` (Linux i386), or `-dll addons/metamod/dlls/linux64/metamod.so` (Linux x86_64) to launch parameter.
 
 or
 
@@ -220,9 +227,11 @@ gamedll_linux "dlls/server.so"
 to
  
 ```
-gamedll "addons/metamod/dlls/metamod.dll"
-gamedll_linux "addons/metamod/dlls/metamod.so"
+gamedll "addons/metamod/dlls/win32/metamod.dll"
+gamedll_linux "addons/metamod/dlls/linux/metamod.so"
 ```
+
+(for 64-bit engines such as HLND2T, point to `addons/metamod/dlls/win64/metamod.dll` or `addons/metamod/dlls/linux64/metamod.so`)
 
 to make metamod work.
 
@@ -241,7 +250,7 @@ The eight components are independent repositories under the
 submodules. Public headers are in `include/`, implementation in `src/`. Metamod owns
 HLSDK under `metamod/include/HLSDK/` and its private Capstone/procmap submodules.
 
-Requirements: CMake 3.21+, Git, Python 3.8+, and Windows MSVC Win32 or Linux i386 GCC multilib.
+Requirements: CMake 3.21+, Git, Python 3.8+ (for 32-bit gamedata synchronization), and Windows MSVC (Win32/x64) or Linux GCC (i386 multilib / x86_64).
 
 ```sh
 git clone --recursive https://github.com/metamod-svencoop/metamod-svencoop
@@ -252,13 +261,8 @@ cmake --build build/x86/Release --config Release --parallel 6
 cmake --install build/x86/Release --config Release
 ```
 
-On Linux omit `-A Win32` and use `-DCMAKE_BUILD_TYPE=Release`; install `gcc-multilib`
-and `g++-multilib`. For Debug use `build/x86/Debug` and `--config Debug` on Windows,
-or `-DCMAKE_BUILD_TYPE=Debug` on Linux. Configure a separate tree for each configuration.
-Installation places the complete `addons/` payload under `install/x86/<Config>/`,
-including Windows PDBs, the default plugin list and `addons/metamod/gamedata/`. Copy that directory's contents
-into the game's `svencoop/` directory. An explicit `CMAKE_INSTALL_PREFIX` or
-`cmake --install --prefix` overrides the default; existing trees retain their cached prefix.
+For Windows x64 use `-B build/x64/Release -A x64 -DMMFG_SYNC_GAMEDATA=OFF` (`gsphysfix` is 32-bit only and disabled automatically on 64-bit targets). On Linux omit `-A Win32` and use `-DCMAKE_BUILD_TYPE=Release` (install `gcc-multilib` and `g++-multilib` for i386, or pass `-DMETAMOD_64BIT=ON -DMMFG_SYNC_GAMEDATA=OFF` with `build/x64/Release` for x86_64). For Debug use `build/<arch>/Debug` and `--config Debug` on Windows, or `-DCMAKE_BUILD_TYPE=Debug` on Linux. Configure a separate tree for each configuration.
+Installation places the complete `addons/` payload under `install/<arch>/<Config>/` (with binaries in `addons/metamod/dlls/<win32|win64|linux|linux64>/`), including Windows PDBs, the default multi-architecture `plugins.ini`, and `addons/metamod/gamedata/` (32-bit builds). Copy that directory's contents into the game's `svencoop/` directory; 32-bit and 64-bit archives can be extracted into the same `svencoop/` tree side by side. Note that 64-bit builds require a 64-bit engine exposing `IGameDllProxyHost` and `GoldSrcExt` contracts (such as HLND2T). An explicit `CMAKE_INSTALL_PREFIX` or `cmake --install --prefix` overrides the default; existing trees retain their cached prefix.
 Release archives retain their existing `build/addons/` layout for installation.
 The existing `scripts/build-*.bat` and `scripts/build-*.sh` names remain compatibility
 entry points to this unified build, independent of the caller's working directory.
