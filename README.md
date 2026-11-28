@@ -115,6 +115,22 @@ Use macro `METAMOD_PLUGIN_ASQCVAR` to detect its availability.
 
 [Documentation](https://github.com/metamod-svencoop/asqcvar)
 
+### assqlite.dll (assqlite.so)
+
+This plugin exposes SQLite3 database access (`CSQLite`, `CSQLGrid`, `CSQLItem`) to AngelScript map scripts and plugins. SQLite3 is statically compiled from source with no external runtime DLL/SO dependency on Windows or Linux (x86 and x64).
+
+* This is not required if you just gonna play `Fall Guys in Sven Co-op`
+
+Features :
+
+* Synchronous (`Exec(sql, grid, errMsg)`) and callback-based (`Exec(sql, fnSQLiteCallback, param, errMsg)`) SQLite3 queries
+* Sandboxed file storage under `svencoop/scripts/plugins/store/` plus `:memory:` / URI databases
+* Raw byte access via `CSQLItem::GetBlob()` returning `array<uint8>@`
+
+Use macro `METAMOD_PLUGIN_ASSQLITE` to detect its availability.
+
+[Documentation](https://github.com/metamod-svencoop/assqlite)
+
 ### asusermsg.dll (asusermsg.so)
 
 This plugin provides ability of hooking UserMsg. mainly for server ops and developers to use in their own angelscript plugin.
@@ -173,6 +189,7 @@ Sven Co-op/ (or Sven Co-op Dedicated Server/)
 |           |-- dlls/
 |           |   |-- asqcvar.dll (asqcvar.so)
 |           |   |-- ascurl.dll (ascurl.so)
+|           |   |-- assqlite.dll (assqlite.so)
 |           |   |-- asusermsg.dll (asusermsg.so)
 |           |   |-- asext.dll (asext.so)
 |           |   `-- fallguys.dll (fallguys.so)

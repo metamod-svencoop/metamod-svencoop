@@ -23,7 +23,7 @@ The following content was already organized into Basic Memory notes during onboa
 
 ## "Source file" entry points when notes are insufficient (query/read on demand)
 
-- The eight component directories are submodules under the `metamod-svencoop` GitHub organization. Commit component changes in their own repository and then update the aggregate gitlink.
+- The nine component directories are submodules under the `metamod-svencoop` GitHub organization. Commit component changes in their own repository and then update the aggregate gitlink.
 - Run `git submodule update --init --recursive` after cloning or pulling.
 - Each component builds independently. Public headers are in `include/`, private sources and headers in `src/`; HLSDK is owned by `metamod/include/HLSDK/`.
 - Native dependencies use explicit `*_SOURCE_PATH` overrides or pinned FetchContent. The aggregate shares the customized AngelScript SDK; Metamod owns Capstone/procmap submodules, and FallGuys owns Bullet as a nested submodule.
@@ -34,7 +34,7 @@ The following content was already organized into Basic Memory notes during onboa
 
 - Project docs/plugin docs: root `README.md`, component `README.md` and `USAGE.md`, plus navigation pages in `docs/`.
 - Build and configuration entry points: `CMakeLists.txt`, `scripts/` (CMake is the only supported build system; the legacy `Makefile`/`metamod.sln`/`*.vcxproj` were removed in favour of it)
-- Main module source code: `metamod/`, `fallguys/`, `asext/`, `ascurl/`, `asqcvar/`, `asusermsg/`, `slowdl/`, `gsphysfix/`
+- Main module source code: `metamod/`, `fallguys/`, `asext/`, `ascurl/`, `asqcvar/`, `assqlite/`, `asusermsg/`, `slowdl/`, `gsphysfix/`
 - CI: `.github/workflows/`
 - Large directories (avoid full reads): `thirdparty/`, `build/`, `build-cmake/`, `intermediate/`, `output/`, `install/`, `Release/`, `Debug/`, `.vs/`
 

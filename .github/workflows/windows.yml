@@ -47,6 +47,7 @@ jobs:
             'fallguys.pdb',
             'ascurl.pdb',
             'asqcvar.pdb',
+            'assqlite.pdb',
             'asusermsg.pdb',
             'slowdl.pdb',
             'gsphysfix.pdb'

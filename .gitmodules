@@ -31,3 +31,6 @@
 [submodule "thirdparty/GoldSrcExt"]
 	path = thirdparty/GoldSrcExt
 	url = https://github.com/HLND2T/GoldSrcExt.git
+[submodule "assqlite"]
+	path = assqlite
+	url = https://github.com/metamod-svencoop/assqlite.git
