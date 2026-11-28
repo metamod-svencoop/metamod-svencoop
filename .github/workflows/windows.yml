@@ -41,11 +41,13 @@ jobs:
         working-directory: ${{env.GITHUB_WORKSPACE}}
         run: cmake -S . -B build/x64/${{ matrix.config }} -A x64 -DMMFG_METAMOD_BUILD_TESTS=ON -DMMFG_SYNC_GAMEDATA=OFF
 
-      - name: Build and install
+      - name: Build
         working-directory: ${{env.GITHUB_WORKSPACE}}
-        run: |
-          cmake --build build/${{ matrix.arch }}/${{ matrix.config }} --config ${{ matrix.config }} --parallel 6
-          cmake --install build/${{ matrix.arch }}/${{ matrix.config }} --config ${{ matrix.config }}
+        run: cmake --build build/${{ matrix.arch }}/${{ matrix.config }} --config ${{ matrix.config }} --parallel 6
+
+      - name: Install
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: cmake --install build/${{ matrix.arch }}/${{ matrix.config }} --config ${{ matrix.config }}
 
       - name: Verify component PDBs
         working-directory: ${{env.GITHUB_WORKSPACE}}
