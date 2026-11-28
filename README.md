@@ -24,6 +24,12 @@ This metamod is based on [Bots-United's metamod-p](https://github.com/Bots-Unite
 
 [AngelScript plugin template (astemplate)](https://github.com/metamod-svencoop/astemplate)
 
+[ASExtHook](https://github.com/DrAbcOfficial/asexthook)
+
+[Ecco](https://github.com/DrAbcOfficial/ecco)
+
+[Sven JIT](https://github.com/DrAbcOfficial/sven_jit)
+
 # Plugins
 
 All plugins below are loaded by this metamod. They are installed into per-architecture
